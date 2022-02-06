@@ -1,0 +1,38 @@
+##Server configuration
+server:
+  port: 8081
+  servlet:
+    context-path: /
+##Spring
+spring:
+  spring:
+    output:
+      ansi:
+        enabled: ALWAYS
+  # Database
+  datasource:
+    url: jdbc:postgresql://localhost:5432/price-compare
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  # JPA properties
+  jpa:
+    ddl-auto: create #update # When you launch the application for the first time - switch "none" at "create"
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    generate-ddl: true
+## Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    operationsSorter: method
+    path: /scraper
+## Logger
+logging:
+  level:
+    root: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate: DEBUG
