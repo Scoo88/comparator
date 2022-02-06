@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +22,11 @@ public class LinksService {
     @Autowired
     LinksRepository linksRepository;
 
-    String urlLinks = "https://www.links.hr";
+    @Value("${url.links}")
+    String urlLinks;
+
+    @Value("${url.links.page-properties}")
+    String pageProperties;
 
     public List<LinksCategory> getCategoriesFirstLevel() throws IOException {
         String category = "cat-IT";
@@ -70,6 +75,13 @@ public class LinksService {
         response = linksRepository.findByLevel(THIRD_LEVEL);
 
         return response;
+    }
+
+    public void getProducts() throws IOException {
+        Optional<LinksCategory> category = linksRepository.findByTitle("Grafičke kartice");
+        Document document = Jsoup.connect(category.get().getLink()+pageProperties).get();
+        Elements elements = document.getElementsByClass("item-grid");
+        System.out.println(elements.first().toString());
     }
 
     private List<LinksCategory> mapFromJsoupToCategories(String url, String category, CategoryEnums categoryEnum) throws IOException {

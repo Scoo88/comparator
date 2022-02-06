@@ -31,4 +31,9 @@ public class LinksController {
     public List<LinksCategory> getCategoriesThirdLevel() throws IOException {
         return linksService.getCategoriesThirdLevel();
     }
+
+    @GetMapping("/get-product-list")
+    public void getProducts() throws IOException {
+        linksService.getProducts();
+    }
 }
