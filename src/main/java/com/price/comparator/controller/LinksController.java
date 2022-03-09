@@ -17,23 +17,13 @@ public class LinksController {
     @Autowired
     LinksService linksService;
 
-    @GetMapping("/first-level")
-    public List<LinksCategory> getCategoriesFirstLevel() throws IOException {
-        return linksService.getCategoriesFirstLevel();
+    @GetMapping("/get-categories")
+    public List<LinksCategory> g() throws IOException {
+        return linksService.getAllCategoriesFromSite();
     }
 
-    @GetMapping("/second-level")
-    public List<LinksCategory> getCategoriesSecondLevel() throws IOException {
-        return linksService.getCategoriesSecondLevel();
-    }
-
-    @GetMapping("/third-level")
-    public List<LinksCategory> getCategoriesThirdLevel() throws IOException {
-        return linksService.getCategoriesThirdLevel();
-    }
-
-    @GetMapping("/get-product-list")
-    public void getProducts() throws IOException {
-        linksService.getProducts();
+    @GetMapping("/get-products-from-site")
+    public void getProductsFromSite() throws IOException {
+        linksService.getProductsFromSite();
     }
 }
