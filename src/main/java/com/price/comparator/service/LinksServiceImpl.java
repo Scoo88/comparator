@@ -1,6 +1,7 @@
 package com.price.comparator.service;
 
 import com.price.comparator.entity.links.LinksCategory;
+import com.price.comparator.entity.links.LinksProduct;
 import com.price.comparator.enums.CategoryEnums;
 import com.price.comparator.repository.LinksRepository;
 import org.jsoup.Jsoup;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,16 +44,46 @@ public class LinksServiceImpl implements LinksService{
     }
 
     public void getProductsFromSite() throws IOException {
+        int currentPageNumber = 1;
+        String pageProperty = pageProperties + currentPageNumber;
         Optional<LinksCategory> category = linksRepository.findByTitle("Grafičke kartice");
-        Document document = Jsoup.connect(category.get().getLink()+pageProperties).get();
-        Elements elements = document.getElementsByClass("item-grid");
-        Elements elements1 = document.getElementsByClass("product-title");
 
+        Document document = Jsoup.connect(category.get().getLink()+pageProperty).get();
 
-        System.out.println(elements.first().toString());
-        System.out.println(elements1.first().toString());
+        Elements pages = document.getElementsByClass("individual-page");
+        int totalPages = currentPageNumber + pages.size();
+
+//        rješenje za loop stranica!!!!
+//        do {
+//
+//            currentPageNumber++;
+//        } while(currentPageNumber <= totalPages);
+
+        Elements elements = document.getElementsByClass("product-item");
+
+        elements.forEach(oneElement -> {
+            LinksProduct linksProduct = new LinksProduct();
+
+            linksProduct.setCategoryId(category.get().getCategoryId());
+            linksProduct.setDateCreated(new Date());
+            linksProduct.setTitle(oneElement.getElementsByClass("product-title").text());
+            linksProduct.setCategory(category.get().getTitle());
+
+            String priceInteger =
+                    oneElement.getElementsByClass("price actual-price").first().childNodes().get(0).toString().replace(".", "").trim();
+            String priceDecimals = oneElement.getElementsByClass("decimalPlaces").first().text();
+
+            String priceToParse = priceInteger + "." + priceDecimals;
+
+            BigDecimal finalPrice = BigDecimal.valueOf(Double.parseDouble(priceToParse)).setScale(2, RoundingMode.HALF_EVEN);
+
+            linksProduct.setPrice(finalPrice);
+
+        });
     }
 
+
+    /*private methods----------------------------------------------------------------------------------------------------*/
     private List<LinksCategory> getCategoriesFirstLevel() {
         String category = "cat-IT";
         CategoryEnums level = FIRST_LEVEL;
