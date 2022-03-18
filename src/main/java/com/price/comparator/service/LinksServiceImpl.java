@@ -3,6 +3,7 @@ package com.price.comparator.service;
 import com.price.comparator.entity.links.LinksCategory;
 import com.price.comparator.entity.links.LinksProduct;
 import com.price.comparator.enums.CategoryEnums;
+import com.price.comparator.repository.LinksProductRepository;
 import com.price.comparator.repository.LinksRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,6 +28,9 @@ public class LinksServiceImpl implements LinksService{
     @Autowired
     LinksRepository linksRepository;
 
+    @Autowired
+    LinksProductRepository linksProductRepository;
+
     @Value("${url.links}")
     String urlLinks;
 
@@ -44,42 +48,58 @@ public class LinksServiceImpl implements LinksService{
     }
 
     public void getProductsFromSite() throws IOException {
-        int currentPageNumber = 1;
-        String pageProperty = pageProperties + currentPageNumber;
         Optional<LinksCategory> category = linksRepository.findByTitle("Grafičke kartice");
 
-        Document document = Jsoup.connect(category.get().getLink()+pageProperty).get();
+        int currentPageNumber = 1;
+        int totalPages = 0;
 
-        Elements pages = document.getElementsByClass("individual-page");
-        int totalPages = currentPageNumber + pages.size();
+        //        rješenje za loop stranica!!!!
+        do {
+            String pageProperty = pageProperties + currentPageNumber;
+            Document document = Jsoup.connect(category.get().getLink() + pageProperty).get();
 
-//        rješenje za loop stranica!!!!
-//        do {
-//
-//            currentPageNumber++;
-//        } while(currentPageNumber <= totalPages);
+            if (currentPageNumber == 1) {
+                Elements pages = document.getElementsByClass("individual-page");
+                totalPages = currentPageNumber + pages.size();
+            }
 
-        Elements elements = document.getElementsByClass("product-item");
+            // fetching and mapping product
+            Elements elements = document.getElementsByClass("product-item");
 
-        elements.forEach(oneElement -> {
-            LinksProduct linksProduct = new LinksProduct();
+            elements.forEach(oneElement -> {
+                LinksProduct linksProduct = new LinksProduct();
 
-            linksProduct.setCategoryId(category.get().getCategoryId());
-            linksProduct.setDateCreated(new Date());
-            linksProduct.setTitle(oneElement.getElementsByClass("product-title").text());
-            linksProduct.setCategory(category.get().getTitle());
+                linksProduct.setCategoryId(category.get().getCategoryId());
+                linksProduct.setDateCreated(new Date());
+                linksProduct.setTitle(oneElement.getElementsByClass("product-title").text());
+                linksProduct.setCategory(category.get().getTitle());
 
-            String priceInteger =
-                    oneElement.getElementsByClass("price actual-price").first().childNodes().get(0).toString().replace(".", "").trim();
-            String priceDecimals = oneElement.getElementsByClass("decimalPlaces").first().text();
+                // parsing webshop price
+                String webshopPrice = oneElement.getElementsByClass("price actual-price").first().text().replace("kn",
+                        "").replace(".", "").trim();
+                BigDecimal webshopPriceFinal = BigDecimal.valueOf(Double.parseDouble(webshopPrice) / 100).setScale(2,
+                        RoundingMode.HALF_EVEN);
+                linksProduct.setWebshopPrice(webshopPriceFinal);
 
-            String priceToParse = priceInteger + "." + priceDecimals;
+                if (oneElement.getElementsByClass("price old-price").first() != null) {
+                    // parsing shop price
+                    String shopPrice = oneElement.getElementsByClass("price old-price").first().text().replace("kn",
+                            "").trim();
 
-            BigDecimal finalPrice = BigDecimal.valueOf(Double.parseDouble(priceToParse)).setScale(2, RoundingMode.HALF_EVEN);
+                    BigDecimal shopPriceFinal = BigDecimal.valueOf(Double.parseDouble(shopPrice) / 100).setScale(2,
+                            RoundingMode.HALF_EVEN);
+                    linksProduct.setShopPrice(shopPriceFinal);
+                } else {
+                    linksProduct.setShopPrice(webshopPriceFinal);
+                }
 
-            linksProduct.setPrice(finalPrice);
+                System.out.println(linksProduct.getTitle() + " - " + linksProduct.getWebshopPrice() + " - " + linksProduct.getShopPrice());
+                            linksProductRepository.saveAndFlush(linksProduct);
 
-        });
+            });
+
+            currentPageNumber++;
+        } while (currentPageNumber <= totalPages);
     }
 
 
