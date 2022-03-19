@@ -21,6 +21,9 @@ public class LinksProduct {
     private String categoryId;
     private String category;
     private String title;
+    private String link;
     private BigDecimal webshopPrice;
+    private String webshopCurrency;
     private BigDecimal shopPrice;
+    private String shopCurrency;
 }

@@ -22,4 +22,7 @@ public class LinksCategory {
     private String link;
     private String title;
     private CategoryEnums level;
+    private boolean active = false;
+
+    // check if the product with the same price already exists and think about solution
 }

@@ -6,8 +6,14 @@ import java.io.IOException;
 import java.util.List;
 
 public interface LinksService {
-    List<LinksCategory> getAllCategoriesFromSite();
+    List<LinksCategory> createAllCategoriesFromSite();
 
-    void getProductsFromSite() throws IOException;
+    List<LinksCategory> getCategoriesFromDb();
+
+    List<LinksCategory> getCategoriesByTitle(String title);
+
+    void createProductsFromSite() throws IOException;
+
+    public void changeProductActiveStatus(List<String> productId, Boolean statusUpdate);
 
 }

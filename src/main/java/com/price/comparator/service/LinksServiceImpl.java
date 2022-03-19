@@ -4,7 +4,7 @@ import com.price.comparator.entity.links.LinksCategory;
 import com.price.comparator.entity.links.LinksProduct;
 import com.price.comparator.enums.CategoryEnums;
 import com.price.comparator.repository.LinksProductRepository;
-import com.price.comparator.repository.LinksRepository;
+import com.price.comparator.repository.LinksCategoriesRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -26,7 +26,7 @@ import static com.price.comparator.enums.CategoryEnums.*;
 public class LinksServiceImpl implements LinksService{
 
     @Autowired
-    LinksRepository linksRepository;
+    LinksCategoriesRepository linksCategoriesRepository;
 
     @Autowired
     LinksProductRepository linksProductRepository;
@@ -37,7 +37,7 @@ public class LinksServiceImpl implements LinksService{
     @Value("${url.links.page-properties}")
     String pageProperties;
 
-    public List<LinksCategory> getAllCategoriesFromSite(){
+    public List<LinksCategory> createAllCategoriesFromSite(){
         List<LinksCategory> response = new ArrayList<>();
 
         response.addAll(getCategoriesFirstLevel());
@@ -47,61 +47,99 @@ public class LinksServiceImpl implements LinksService{
         return response;
     }
 
-    public void getProductsFromSite() throws IOException {
-        Optional<LinksCategory> category = linksRepository.findByTitle("Grafičke kartice");
-
-        int currentPageNumber = 1;
-        int totalPages = 0;
-
-        //        rješenje za loop stranica!!!!
-        do {
-            String pageProperty = pageProperties + currentPageNumber;
-            Document document = Jsoup.connect(category.get().getLink() + pageProperty).get();
-
-            if (currentPageNumber == 1) {
-                Elements pages = document.getElementsByClass("individual-page");
-                totalPages = currentPageNumber + pages.size();
-            }
-
-            // fetching and mapping product
-            Elements elements = document.getElementsByClass("product-item");
-
-            elements.forEach(oneElement -> {
-                LinksProduct linksProduct = new LinksProduct();
-
-                linksProduct.setCategoryId(category.get().getCategoryId());
-                linksProduct.setDateCreated(new Date());
-                linksProduct.setTitle(oneElement.getElementsByClass("product-title").text());
-                linksProduct.setCategory(category.get().getTitle());
-
-                // parsing webshop price
-                String webshopPrice = oneElement.getElementsByClass("price actual-price").first().text().replace("kn",
-                        "").replace(".", "").trim();
-                BigDecimal webshopPriceFinal = BigDecimal.valueOf(Double.parseDouble(webshopPrice) / 100).setScale(2,
-                        RoundingMode.HALF_EVEN);
-                linksProduct.setWebshopPrice(webshopPriceFinal);
-
-                if (oneElement.getElementsByClass("price old-price").first() != null) {
-                    // parsing shop price
-                    String shopPrice = oneElement.getElementsByClass("price old-price").first().text().replace("kn",
-                            "").trim();
-
-                    BigDecimal shopPriceFinal = BigDecimal.valueOf(Double.parseDouble(shopPrice) / 100).setScale(2,
-                            RoundingMode.HALF_EVEN);
-                    linksProduct.setShopPrice(shopPriceFinal);
-                } else {
-                    linksProduct.setShopPrice(webshopPriceFinal);
-                }
-
-                System.out.println(linksProduct.getTitle() + " - " + linksProduct.getWebshopPrice() + " - " + linksProduct.getShopPrice());
-                            linksProductRepository.saveAndFlush(linksProduct);
-
-            });
-
-            currentPageNumber++;
-        } while (currentPageNumber <= totalPages);
+    public List<LinksCategory> getCategoriesFromDb(){
+        List<LinksCategory> response = linksCategoriesRepository.findAll();
+        return response;
     }
 
+    public List<LinksCategory> getCategoriesByTitle(String title){
+        List<LinksCategory> response = linksCategoriesRepository.findByTitleIgnoreCaseContaining(title);
+
+        return response;
+    }
+
+    public void createProductsFromSite() throws IOException {
+        List<LinksCategory> categories = linksCategoriesRepository.findByActive(true);
+
+        categories.forEach(category -> {
+            int currentPageNumber = 1;
+            int totalPages = 0;
+
+            // page loop
+            do {
+                String pageProperty = pageProperties + currentPageNumber;
+                Document document = null;
+                try {
+                    document = Jsoup.connect(category.getLink() + pageProperty).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (currentPageNumber == 1) {
+                    Elements pages = document.getElementsByClass("individual-page");
+                    totalPages = currentPageNumber + pages.size();
+                }
+
+                // fetching and mapping product
+                Elements elements = document.getElementsByClass("product-item");
+
+                elements.forEach(oneElement -> {
+                    LinksProduct linksProduct = new LinksProduct();
+
+                    linksProduct.setCategoryId(category.getCategoryId());
+                    linksProduct.setDateCreated(new Date());
+                    linksProduct.setTitle(oneElement.getElementsByClass("product-title").text());
+                    linksProduct.setCategory(category.getTitle());
+                    linksProduct.setLink(urlLinks+oneElement.getElementsByAttribute("title").attr("href"));
+
+                    // parsing webshop price
+                    String webshopCurrency =
+                            oneElement.getElementsByClass("price actual-price").first().children().get(1).text();
+                    String webshopPrice = oneElement.getElementsByClass("price actual-price").first().text().replace(webshopCurrency,
+                            "").replace(".", "").trim();
+                    BigDecimal webshopPriceFinal = BigDecimal.valueOf(Double.parseDouble(webshopPrice) / 100).setScale(2,
+                            RoundingMode.HALF_EVEN);
+                    linksProduct.setWebshopPrice(webshopPriceFinal);
+                    linksProduct.setWebshopCurrency(webshopCurrency);
+
+                    if (oneElement.getElementsByClass("price old-price").first() != null) {
+                        // parsing shop price
+                        String shopCurrency =
+                                oneElement.getElementsByClass("price old-price").first().children().get(1).text();
+
+                        String shopPrice = oneElement.getElementsByClass("price old-price").first().text().replace(shopCurrency,
+                                "").replace(".", "").trim();
+
+                        BigDecimal shopPriceFinal = BigDecimal.valueOf(Double.parseDouble(shopPrice) / 100).setScale(2,
+                                RoundingMode.HALF_EVEN);
+                        linksProduct.setShopPrice(shopPriceFinal);
+                        linksProduct.setShopCurrency(shopCurrency);
+                    } else {
+                        linksProduct.setShopPrice(webshopPriceFinal);
+                        linksProduct.setShopCurrency(webshopCurrency);
+                    }
+
+                    linksProductRepository.saveAndFlush(linksProduct);
+                });
+
+                currentPageNumber++;
+            } while (currentPageNumber <= totalPages);
+        });
+
+    }
+
+    public void changeProductActiveStatus(List<String> categoryIds, Boolean statusUpdate){
+        List<LinksCategory> categoryCheckDb = linksCategoriesRepository.findByCategoryIdIn(categoryIds);
+
+        categoryCheckDb.forEach(linksCategory -> {
+                    if (statusUpdate == null){
+                        linksCategory.setActive(false);
+                    } else {
+                        linksCategory.setActive(statusUpdate);
+                    }
+                    linksCategoriesRepository.saveAndFlush(linksCategory);
+        });
+    }
 
     /*private methods----------------------------------------------------------------------------------------------------*/
     private List<LinksCategory> getCategoriesFirstLevel() {
@@ -115,7 +153,7 @@ public class LinksServiceImpl implements LinksService{
             e.printStackTrace();
         }
 
-        response = linksRepository.findByLevel(level);
+        response = linksCategoriesRepository.findByLevel(level);
 
 
         return response;
@@ -124,7 +162,7 @@ public class LinksServiceImpl implements LinksService{
     private List<LinksCategory> getCategoriesSecondLevel() {
         List<LinksCategory> response;
 
-        List<LinksCategory> getCategoriesFromDb = linksRepository.findByLevel(FIRST_LEVEL);
+        List<LinksCategory> getCategoriesFromDb = linksCategoriesRepository.findByLevel(FIRST_LEVEL);
         CategoryEnums level = SECOND_LEVEL;
 
         getCategoriesFromDb.forEach(firstLevel -> {
@@ -137,7 +175,7 @@ public class LinksServiceImpl implements LinksService{
             }
         });
 
-        response = linksRepository.findByLevel(level);
+        response = linksCategoriesRepository.findByLevel(level);
 
         return response;
     }
@@ -145,7 +183,7 @@ public class LinksServiceImpl implements LinksService{
     private List<LinksCategory> getCategoriesThirdLevel() {
         List<LinksCategory> response;
 
-        List<LinksCategory> getCategoriesFromDb = linksRepository.findByLevel(SECOND_LEVEL);
+        List<LinksCategory> getCategoriesFromDb = linksCategoriesRepository.findByLevel(SECOND_LEVEL);
         CategoryEnums level = THIRD_LEVEL;
 
         getCategoriesFromDb.forEach(firstLevel -> {
@@ -158,7 +196,7 @@ public class LinksServiceImpl implements LinksService{
             }
         });
 
-        response = linksRepository.findByLevel(level);
+        response = linksCategoriesRepository.findByLevel(level);
 
         return response;
     }
@@ -179,9 +217,9 @@ public class LinksServiceImpl implements LinksService{
             linksCategory.setDateCreated(new Date());
             response.add(linksCategory);
 
-            Optional<LinksCategory> checkDb = linksRepository.findByCategoryId(linksCategory.getCategoryId());
+            Optional<LinksCategory> checkDb = linksCategoriesRepository.findByCategoryId(linksCategory.getCategoryId());
             if (checkDb.isEmpty()) {
-                linksRepository.saveAndFlush(linksCategory);
+                linksCategoriesRepository.saveAndFlush(linksCategory);
             }
         });
         return response;
