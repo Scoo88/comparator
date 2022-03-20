@@ -23,7 +23,7 @@ import java.util.Optional;
 import static com.price.comparator.enums.CategoryEnums.*;
 
 @Service
-public class LinksServiceImpl implements LinksService{
+public class LinksServiceImpl implements LinksService {
 
     @Autowired
     LinksCategoriesRepository linksCategoriesRepository;
@@ -37,7 +37,7 @@ public class LinksServiceImpl implements LinksService{
     @Value("${url.links.page-properties}")
     String pageProperties;
 
-    public List<LinksCategory> createAllCategoriesFromSite(){
+    public List<LinksCategory> createAllCategoriesFromSite() {
         List<LinksCategory> response = new ArrayList<>();
 
         response.addAll(getCategoriesFirstLevel());
@@ -47,12 +47,12 @@ public class LinksServiceImpl implements LinksService{
         return response;
     }
 
-    public List<LinksCategory> getCategoriesFromDb(){
+    public List<LinksCategory> getCategoriesFromDb() {
         List<LinksCategory> response = linksCategoriesRepository.findAll();
         return response;
     }
 
-    public List<LinksCategory> getCategoriesByTitle(String title){
+    public List<LinksCategory> getCategoriesByTitle(String title) {
         List<LinksCategory> response = linksCategoriesRepository.findByTitleIgnoreCaseContaining(title);
 
         return response;
@@ -90,25 +90,25 @@ public class LinksServiceImpl implements LinksService{
                     linksProduct.setDateCreated(new Date());
                     linksProduct.setTitle(oneElement.getElementsByClass("product-title").text());
                     linksProduct.setCategory(category.getTitle());
-                    linksProduct.setLink(urlLinks+oneElement.getElementsByAttribute("title").attr("href"));
+                    linksProduct.setLink(urlLinks + oneElement.getElementsByAttribute("title").attr("href"));
 
                     // parsing webshop price
-                    String webshopCurrency =
-                            oneElement.getElementsByClass("price actual-price").first().children().get(1).text();
-                    String webshopPrice = oneElement.getElementsByClass("price actual-price").first().text().replace(webshopCurrency,
-                            "").replace(".", "").trim();
-                    BigDecimal webshopPriceFinal = BigDecimal.valueOf(Double.parseDouble(webshopPrice) / 100).setScale(2,
-                            RoundingMode.HALF_EVEN);
+                    String webshopCurrency = oneElement.getElementsByClass("price actual-price").first().children().get(
+                            1).text();
+                    String webshopPrice = oneElement.getElementsByClass("price actual-price").first().text().replace(
+                            webshopCurrency, "").replace(".", "").trim();
+                    BigDecimal webshopPriceFinal = BigDecimal.valueOf(Double.parseDouble(webshopPrice) / 100).setScale(
+                            2, RoundingMode.HALF_EVEN);
                     linksProduct.setWebshopPrice(webshopPriceFinal);
                     linksProduct.setWebshopCurrency(webshopCurrency);
 
                     if (oneElement.getElementsByClass("price old-price").first() != null) {
                         // parsing shop price
-                        String shopCurrency =
-                                oneElement.getElementsByClass("price old-price").first().children().get(1).text();
+                        String shopCurrency = oneElement.getElementsByClass("price old-price").first().children().get(
+                                1).text();
 
-                        String shopPrice = oneElement.getElementsByClass("price old-price").first().text().replace(shopCurrency,
-                                "").replace(".", "").trim();
+                        String shopPrice = oneElement.getElementsByClass("price old-price").first().text().replace(
+                                shopCurrency, "").replace(".", "").trim();
 
                         BigDecimal shopPriceFinal = BigDecimal.valueOf(Double.parseDouble(shopPrice) / 100).setScale(2,
                                 RoundingMode.HALF_EVEN);
@@ -119,29 +119,33 @@ public class LinksServiceImpl implements LinksService{
                         linksProduct.setShopCurrency(webshopCurrency);
                     }
 
-                    linksProductRepository.saveAndFlush(linksProduct);
-                });
+                    Optional<LinksProduct> checkDb = linksProductRepository.findByTitle(linksProduct.getTitle());
 
+                    if (checkDb.get().getShopPrice().equals(linksProduct.getShopPrice())
+                            || checkDb.get().getWebshopPrice().equals(linksProduct.getWebshopPrice())) {
+                        linksProductRepository.saveAndFlush(linksProduct);
+                    }
+                });
                 currentPageNumber++;
             } while (currentPageNumber <= totalPages);
         });
 
     }
 
-    public void changeProductActiveStatus(List<String> categoryIds, Boolean statusUpdate){
+    public void changeProductActiveStatus(List<String> categoryIds, Boolean statusUpdate) {
         List<LinksCategory> categoryCheckDb = linksCategoriesRepository.findByCategoryIdIn(categoryIds);
 
         categoryCheckDb.forEach(linksCategory -> {
-                    if (statusUpdate == null){
-                        linksCategory.setActive(false);
-                    } else {
-                        linksCategory.setActive(statusUpdate);
-                    }
-                    linksCategoriesRepository.saveAndFlush(linksCategory);
+            if (statusUpdate == null) {
+                linksCategory.setActive(false);
+            } else {
+                linksCategory.setActive(statusUpdate);
+            }
+            linksCategoriesRepository.saveAndFlush(linksCategory);
         });
     }
 
-    /*private methods----------------------------------------------------------------------------------------------------*/
+    /*------ private methods ----------------------------------------------------------------------------------------*/
     private List<LinksCategory> getCategoriesFirstLevel() {
         String category = "cat-IT";
         CategoryEnums level = FIRST_LEVEL;
@@ -154,7 +158,6 @@ public class LinksServiceImpl implements LinksService{
         }
 
         response = linksCategoriesRepository.findByLevel(level);
-
 
         return response;
     }
@@ -201,7 +204,8 @@ public class LinksServiceImpl implements LinksService{
         return response;
     }
 
-    private List<LinksCategory> mapFromJsoupToCategories(String url, String category, CategoryEnums categoryEnum) throws IOException {
+    private List<LinksCategory> mapFromJsoupToCategories(String url, String category, CategoryEnums categoryEnum)
+            throws IOException {
         List<LinksCategory> response = new ArrayList<>();
 
         Document document = Jsoup.connect(url).get();
