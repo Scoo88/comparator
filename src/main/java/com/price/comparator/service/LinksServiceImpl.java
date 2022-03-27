@@ -119,10 +119,21 @@ public class LinksServiceImpl implements LinksService {
                         linksProduct.setShopCurrency(webshopCurrency);
                     }
 
-                    Optional<LinksProduct> checkDb = linksProductRepository.findByTitle(linksProduct.getTitle());
+//                    Optional<LinksProduct> checkDb1 = linksProductRepository.findFirstByTitleOrderByDateCreatedDesc
+                    //                    (linksProduct.getTitle());
+                    //                    if (checkDb.isEmpty() || !checkDb.get().getShopPrice().equals(linksProduct
+                    //                    .getShopPrice())
+                    //                            || !checkDb.get().getWebshopPrice().equals(linksProduct.getWebshopPrice())) {
+                    //                        linksProductRepository.saveAndFlush(linksProduct);
+                    //                    }
 
-                    if (checkDb.get().getShopPrice().equals(linksProduct.getShopPrice())
-                            || checkDb.get().getWebshopPrice().equals(linksProduct.getWebshopPrice())) {
+                    // ako postoji s današnjim danom i istom cijenom ne upisat u bazu
+                    // izbaciti vrijeme i ostaviti samo datum!!
+                    List<LinksProduct> checkDb =
+                            linksProductRepository.findByTitleAndDateCreatedGreaterThanAndWebshopPriceAndShopPrice(linksProduct.getTitle()
+                                    , linksProduct.getDateCreated(), linksProduct.getWebshopPrice(),
+                                    linksProduct.getShopPrice());
+                    if (checkDb.isEmpty()){
                         linksProductRepository.saveAndFlush(linksProduct);
                     }
                 });
