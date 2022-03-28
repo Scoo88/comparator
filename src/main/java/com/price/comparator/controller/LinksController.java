@@ -38,6 +38,6 @@ public class LinksController {
     @PutMapping("/change-product-active-status")
     public void changeProductActiveStatus(@RequestParam List<String> categoryId,
             @RequestParam(required = false) Boolean statusUpdate){
-        linksService.changeProductActiveStatus(categoryId, statusUpdate);
+        linksService.changeCategoryActiveStatus(categoryId, statusUpdate);
     }
 }

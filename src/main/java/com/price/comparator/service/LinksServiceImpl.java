@@ -3,8 +3,9 @@ package com.price.comparator.service;
 import com.price.comparator.entity.links.LinksCategory;
 import com.price.comparator.entity.links.LinksProduct;
 import com.price.comparator.enums.CategoryEnums;
-import com.price.comparator.repository.LinksProductRepository;
 import com.price.comparator.repository.LinksCategoriesRepository;
+import com.price.comparator.repository.LinksProductRepository;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.price.comparator.enums.CategoryEnums.*;
 
@@ -48,14 +46,11 @@ public class LinksServiceImpl implements LinksService {
     }
 
     public List<LinksCategory> getCategoriesFromDb() {
-        List<LinksCategory> response = linksCategoriesRepository.findAll();
-        return response;
+        return linksCategoriesRepository.findAll();
     }
 
     public List<LinksCategory> getCategoriesByTitle(String title) {
-        List<LinksCategory> response = linksCategoriesRepository.findByTitleIgnoreCaseContaining(title);
-
-        return response;
+        return linksCategoriesRepository.findByTitleIgnoreCaseContaining(title);
     }
 
     public void createProductsFromSite() throws IOException {
@@ -92,7 +87,7 @@ public class LinksServiceImpl implements LinksService {
                     linksProduct.setCategory(category.getTitle());
                     linksProduct.setLink(urlLinks + oneElement.getElementsByAttribute("title").attr("href"));
 
-                    // parsing webshop price
+                    // webshop price
                     String webshopCurrency = oneElement.getElementsByClass("price actual-price").first().children().get(
                             1).text();
                     String webshopPrice = oneElement.getElementsByClass("price actual-price").first().text().replace(
@@ -103,7 +98,7 @@ public class LinksServiceImpl implements LinksService {
                     linksProduct.setWebshopCurrency(webshopCurrency);
 
                     if (oneElement.getElementsByClass("price old-price").first() != null) {
-                        // parsing shop price
+                        // shop price
                         String shopCurrency = oneElement.getElementsByClass("price old-price").first().children().get(
                                 1).text();
 
@@ -119,19 +114,11 @@ public class LinksServiceImpl implements LinksService {
                         linksProduct.setShopCurrency(webshopCurrency);
                     }
 
-//                    Optional<LinksProduct> checkDb1 = linksProductRepository.findFirstByTitleOrderByDateCreatedDesc
-                    //                    (linksProduct.getTitle());
-                    //                    if (checkDb.isEmpty() || !checkDb.get().getShopPrice().equals(linksProduct
-                    //                    .getShopPrice())
-                    //                            || !checkDb.get().getWebshopPrice().equals(linksProduct.getWebshopPrice())) {
-                    //                        linksProductRepository.saveAndFlush(linksProduct);
-                    //                    }
-
-                    // ako postoji s današnjim danom i istom cijenom ne upisat u bazu
-                    // izbaciti vrijeme i ostaviti samo datum!!
                     List<LinksProduct> checkDb =
-                            linksProductRepository.findByTitleAndDateCreatedGreaterThanAndWebshopPriceAndShopPrice(linksProduct.getTitle()
-                                    , linksProduct.getDateCreated(), linksProduct.getWebshopPrice(),
+                            linksProductRepository.findByTitleAndDateCreatedGreaterThanAndWebshopPriceAndShopPrice(
+                                    linksProduct.getTitle(),
+                                    DateUtils.truncate(linksProduct.getDateCreated(), Calendar.DATE),
+                                    linksProduct.getWebshopPrice(),
                                     linksProduct.getShopPrice());
                     if (checkDb.isEmpty()){
                         linksProductRepository.saveAndFlush(linksProduct);
@@ -143,7 +130,7 @@ public class LinksServiceImpl implements LinksService {
 
     }
 
-    public void changeProductActiveStatus(List<String> categoryIds, Boolean statusUpdate) {
+    public void changeCategoryActiveStatus(List<String> categoryIds, Boolean statusUpdate) {
         List<LinksCategory> categoryCheckDb = linksCategoriesRepository.findByCategoryIdIn(categoryIds);
 
         categoryCheckDb.forEach(linksCategory -> {
