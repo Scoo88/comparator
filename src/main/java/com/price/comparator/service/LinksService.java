@@ -14,6 +14,6 @@ public interface LinksService {
 
     void createProductsFromSite() throws IOException;
 
-    public void changeCategoryActiveStatus(List<String> productId, Boolean statusUpdate);
+    void changeCategoryActiveStatus(List<String> productId, Boolean statusUpdate);
 
 }
