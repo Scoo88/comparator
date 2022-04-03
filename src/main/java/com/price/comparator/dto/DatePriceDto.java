@@ -12,7 +12,8 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 public class DatePriceDto {
-    private String title;
+    private String category;
+    private String product;
     private Map<LocalDate, BigDecimal> webshopPricePerDate;
     private Map<LocalDate, BigDecimal> shopPricePerDate;
 }

@@ -150,6 +150,10 @@ public class LinksServiceImpl implements LinksService {
     public List<DatePriceDto> getProductPriceByDate(String category, LocalDate dateFrom, LocalDate dateTo) {
         List<DatePriceDto> response = new ArrayList<>();
 
+        if (dateTo == null || dateFrom.isAfter(LocalDate.now())){
+            dateTo = LocalDate.now();
+        }
+
         List<LinksProduct> productsFromCategory =
                 linksProductRepository.findByCategoryAndDateCreatedGreaterThanAndDateCreatedLessThan(category,
                         dateFrom.atStartOfDay(), dateTo.plusDays(1L).atStartOfDay());
@@ -161,7 +165,8 @@ public class LinksServiceImpl implements LinksService {
                     productsFromCategory.stream().filter(p -> p.getTitle().equals(linksProduct.getTitle())).collect(Collectors.toList());
 
             DatePriceDto pricePerDay = new DatePriceDto();
-            pricePerDay.setTitle(linksProduct.getTitle());
+            pricePerDay.setCategory(linksProduct.getCategory());
+            pricePerDay.setProduct(linksProduct.getTitle());
             SortedMap<LocalDate, BigDecimal> webshopPricePerDate = new TreeMap<>();
             SortedMap<LocalDate, BigDecimal> shopPricePerDate = new TreeMap<>();
 
