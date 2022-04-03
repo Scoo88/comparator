@@ -18,6 +18,6 @@ public interface LinksService {
 
     void changeCategoryActiveStatus(List<String> productId, Boolean statusUpdate);
 
-    List<DatePriceDto> getProductPriceByDate(String category, LocalDate dateFrom, LocalDate dateTo);
+    List<DatePriceDto> getProductsPriceByDate(String category, LocalDate dateFrom, LocalDate dateTo);
 
 }

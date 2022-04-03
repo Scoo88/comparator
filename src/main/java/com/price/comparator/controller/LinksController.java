@@ -46,10 +46,10 @@ public class LinksController {
     }
 
     @GetMapping("/get-products-per-day")
-    public List<DatePriceDto> getProductPriceByDate(@RequestParam String category, @RequestParam @DateTimeFormat(iso =
+    public List<DatePriceDto> getProductsPriceByDate(@RequestParam String category, @RequestParam @DateTimeFormat(iso =
             DateTimeFormat.ISO.DATE) LocalDate dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo)
             throws ParseException {
-        return linksService.getProductPriceByDate(category, dateFrom, dateTo);
+        return linksService.getProductsPriceByDate(category, dateFrom, dateTo);
     }
 }

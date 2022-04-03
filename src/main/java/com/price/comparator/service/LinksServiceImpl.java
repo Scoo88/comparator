@@ -147,7 +147,7 @@ public class LinksServiceImpl implements LinksService {
         });
     }
 
-    public List<DatePriceDto> getProductPriceByDate(String category, LocalDate dateFrom, LocalDate dateTo) {
+    public List<DatePriceDto> getProductsPriceByDate(String category, LocalDate dateFrom, LocalDate dateTo) {
         List<DatePriceDto> response = new ArrayList<>();
 
         if (dateTo == null || dateFrom.isAfter(LocalDate.now())){
