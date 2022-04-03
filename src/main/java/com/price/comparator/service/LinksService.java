@@ -1,8 +1,10 @@
 package com.price.comparator.service;
 
+import com.price.comparator.dto.DatePriceDto;
 import com.price.comparator.entity.links.LinksCategory;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface LinksService {
@@ -15,5 +17,7 @@ public interface LinksService {
     void createProductsFromSite() throws IOException;
 
     void changeCategoryActiveStatus(List<String> productId, Boolean statusUpdate);
+
+    List<DatePriceDto> getProductPriceByDate(String category, LocalDate dateFrom, LocalDate dateTo);
 
 }

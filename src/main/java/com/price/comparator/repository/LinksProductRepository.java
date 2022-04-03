@@ -5,7 +5,7 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,9 +14,13 @@ public interface LinksProductRepository extends JpaRepository<LinksProduct, Long
             + ".dateCreated desc limit 1")
     Optional<LinksProduct> findByTitle(String title);
 
-    Optional<LinksProduct> findFirstByTitleOrderByDateCreatedDesc(String title);
+    List<LinksProduct> findByCategoryAndDateCreatedGreaterThan(String category, LocalDateTime date);
 
-    List<LinksProduct> findByTitleAndDateCreatedGreaterThanAndWebshopPriceAndShopPrice(String title, Date date,
+    List<LinksProduct> findByCategoryAndDateCreatedGreaterThanAndDateCreatedLessThan(String category,
+            LocalDateTime dateFrom,
+            LocalDateTime dateTo);
+
+    List<LinksProduct> findByTitleAndDateCreatedGreaterThanAndWebshopPriceAndShopPrice(String title, LocalDateTime date,
             BigDecimal webshopPrice,
             BigDecimal shopPrice);
 }

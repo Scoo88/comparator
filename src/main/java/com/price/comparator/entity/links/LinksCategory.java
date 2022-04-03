@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -17,12 +17,10 @@ public class LinksCategory {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
-    private Date dateCreated;
+    private LocalDateTime dateCreated;
     private String categoryId;
     private String link;
     private String title;
     private CategoryEnums level;
     private boolean active = false;
-
-    // check if the product with the same price already exists and think about solution
 }
