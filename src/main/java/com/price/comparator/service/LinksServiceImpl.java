@@ -6,6 +6,7 @@ import com.price.comparator.entity.links.LinksProduct;
 import com.price.comparator.enums.CategoryEnums;
 import com.price.comparator.repository.LinksCategoriesRepository;
 import com.price.comparator.repository.LinksProductRepository;
+import com.price.comparator.utils.Utils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -19,9 +20,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.price.comparator.enums.CategoryEnums.*;
@@ -158,7 +156,8 @@ public class LinksServiceImpl implements LinksService {
                 linksProductRepository.findByCategoryAndDateCreatedGreaterThanAndDateCreatedLessThan(category,
                         dateFrom.atStartOfDay(), dateTo.plusDays(1L).atStartOfDay());
 
-        List<LinksProduct> uniqueProducts = productsFromCategory.stream().filter(distinctByKey(LinksProduct::getTitle)).collect(Collectors.toList());
+        List<LinksProduct> uniqueProducts =
+                productsFromCategory.stream().filter(Utils.distinctByKey(LinksProduct::getTitle)).collect(Collectors.toList());
 
         uniqueProducts.forEach(linksProduct -> {
             List<LinksProduct> products =
@@ -184,25 +183,7 @@ public class LinksServiceImpl implements LinksService {
         return response;
     }
 
-    public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor)
-    {
-        Map<Object, Boolean> map = new ConcurrentHashMap<>();
-        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-    }
 
-    public List<LocalDate> listOfDays(LocalDate dateFrom, LocalDate dateTo) {
-        List<LocalDate> listOfDays = new ArrayList<>();
-        LocalDate dateToAdd = dateFrom;
-
-        listOfDays.add(dateToAdd);
-
-        do {
-            dateToAdd = dateToAdd.plusDays(1L);
-            listOfDays.add(dateToAdd);
-        } while (dateToAdd.compareTo(dateTo) < 0);
-
-        return listOfDays;
-    }
 
     /*------ private methods ----------------------------------------------------------------------------------------*/
     private List<LinksCategory> getCategoriesFirstLevel() {

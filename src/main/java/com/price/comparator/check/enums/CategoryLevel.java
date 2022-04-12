@@ -1,5 +1,5 @@
-package com.price.comparator.enums;
+package com.price.comparator.check.enums;
 
-public enum CategoryEnums {
+public enum CategoryLevel {
     FIRST_LEVEL, SECOND_LEVEL, THIRD_LEVEL, FOURTH_LEVEL, FIFTH_LEVEL;
 }

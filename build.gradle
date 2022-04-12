@@ -33,6 +33,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:2.6.3'
 
+    // model mapper
+    implementation 'org.modelmapper:modelmapper:2.4.5'
+
     // Lombok
     annotationProcessor 'org.projectlombok:lombok'
     compileOnly 'org.projectlombok:lombok'
