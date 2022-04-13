@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @Entity(name = "store")
 public class Store {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name="store_seq",sequenceName="store_seq")
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="store_seq")
     @Column(name = "id", nullable = false)
     private Long id;
     private LocalDateTime createdAt;

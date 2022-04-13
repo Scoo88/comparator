@@ -2,9 +2,12 @@ package com.price.comparator.entity.links.controller;
 
 import com.price.comparator.check.store.dto.StoreDto;
 import com.price.comparator.check.store.dto.StoreUpdateDto;
+import com.price.comparator.check.store.exception.StoreException;
 import com.price.comparator.check.store.service.StoreService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,32 +16,34 @@ import java.util.List;
 @RequestMapping("/api/v1/store")
 @Tag(name = "Store")
 public class StoreController {
+
     @Autowired
     StoreService storeService;
 
     @PostMapping("/create-store")
-    public StoreDto createStore(@RequestParam String storeName, @RequestParam String link){
-        return storeService.createStore(storeName, link);
+    public ResponseEntity<StoreDto> createStore(@RequestParam String storeName, @RequestParam String link)
+            throws StoreException {
+        return new ResponseEntity<>(storeService.createStore(storeName, link), HttpStatus.OK);
     }
 
     @GetMapping("/get-all-stores")
-    public List<StoreDto> getAllStores(){
-        return storeService.getAllStores();
+    public ResponseEntity<List<StoreDto>> getAllStores(){
+        return new ResponseEntity<>(storeService.getAllStores(), HttpStatus.OK);
     }
 
     @GetMapping("/get-store-id")
-    public StoreDto getStoreById(@RequestParam Long id){
-        return storeService.getStoreById(id);
+    public ResponseEntity<StoreDto> getStoreById(@RequestParam Long id){
+        return new ResponseEntity<>(storeService.getStoreById(id), HttpStatus.OK);
     }
 
     @PutMapping("/update-store")
-    public StoreDto updateStore(@RequestParam Long id, @RequestBody StoreUpdateDto storeUpdateDto){
-        return storeService.updateStore(id, storeUpdateDto);
+    public ResponseEntity<StoreDto> updateStore(@RequestParam Long id, @RequestBody StoreUpdateDto storeUpdateDto){
+        return new ResponseEntity<>(storeService.updateStore(id, storeUpdateDto),HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-store")
-    public String deleteStore(@RequestParam Long id){
-        return storeService.softDeleteStore(id);
+    public ResponseEntity<String> deleteStore(@RequestParam Long id){
+        return new ResponseEntity<>(storeService.softDeleteStore(id),HttpStatus.OK);
     }
 }
 

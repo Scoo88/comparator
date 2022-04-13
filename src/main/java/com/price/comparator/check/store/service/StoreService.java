@@ -3,29 +3,40 @@ package com.price.comparator.check.store.service;
 import com.price.comparator.check.store.dto.StoreDto;
 import com.price.comparator.check.store.dto.StoreUpdateDto;
 import com.price.comparator.check.store.entity.Store;
+import com.price.comparator.check.store.exception.Messages;
+import com.price.comparator.check.store.exception.StoreException;
 import com.price.comparator.check.store.repository.StoreRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class StoreService {
+
+    private static final Logger logger = LoggerFactory.getLogger(StoreService.class);
+
     @Autowired
     StoreRepository storeRepository;
 
     @Autowired
     ModelMapper modelMapper;
 
-    public StoreDto createStore(String storeName, String link){
+    public StoreDto createStore(String storeName, String link) throws StoreException {
         StoreDto response;
 
         Optional<Store> storeCheckDb = storeRepository.findByStoreName(storeName);
         if (storeCheckDb.isPresent()){
-            throw new RuntimeException("Store already exists.");
+            logger.error("Store already exists.");
+            throw new StoreException(Messages.STORE_ALREADY_EXISTS);
         }
 
         Store store = new Store(storeName, link);
@@ -46,6 +57,7 @@ public class StoreService {
         listFromDb = storeRepository.findAll();
         response = List.of(modelMapper.map(listFromDb, StoreDto[].class));
 
+
         return response;
     }
 
@@ -54,10 +66,10 @@ public class StoreService {
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            throw new RuntimeException("There is no store with id: " + id);
+            throw new NoSuchElementException("There is no store with id: " + id);
         }
 
-        response = modelMapper.map(storeFromDb, StoreDto.class);
+        response = modelMapper.map(storeFromDb.get(), StoreDto.class);
 
         return response;
     }
@@ -67,7 +79,7 @@ public class StoreService {
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            throw new RuntimeException("There is no store with id: " + id);
+            throw new NoSuchElementException("There is no store with id: " + id);
         }
 
         Store updateStore = storeFromDb.get();
@@ -81,8 +93,10 @@ public class StoreService {
         if (storeUpdateDto.getActive() != null){
             updateStore.setActive(storeUpdateDto.getActive());
         }
+        storeRepository.saveAndFlush(updateStore);
 
         response = modelMapper.map(updateStore, StoreDto.class);
+
 
         return response;
     }
@@ -92,11 +106,12 @@ public class StoreService {
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            throw new RuntimeException("There is no store with id: " + id);
+            throw new NoSuchElementException("There is no store with id: " + id);
         }
 
         Store deleteStore = storeFromDb.get();
         deleteStore.setActive(false);
+        deleteStore = storeRepository.saveAndFlush(deleteStore);
 
         message = "Store " + deleteStore.getStoreName() + " removed.";
 
