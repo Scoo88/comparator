@@ -32,17 +32,18 @@ public class StoreController {
     }
 
     @GetMapping("/get-store-id")
-    public ResponseEntity<StoreDto> getStoreById(@RequestParam Long id){
+    public ResponseEntity<StoreDto> getStoreById(@RequestParam Long id) throws StoreException {
         return new ResponseEntity<>(storeService.getStoreById(id), HttpStatus.OK);
     }
 
     @PutMapping("/update-store")
-    public ResponseEntity<StoreDto> updateStore(@RequestParam Long id, @RequestBody StoreUpdateDto storeUpdateDto){
+    public ResponseEntity<StoreDto> updateStore(@RequestParam Long id, @RequestBody StoreUpdateDto storeUpdateDto)
+            throws StoreException {
         return new ResponseEntity<>(storeService.updateStore(id, storeUpdateDto),HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-store")
-    public ResponseEntity<String> deleteStore(@RequestParam Long id){
+    public ResponseEntity<String> deleteStore(@RequestParam Long id) throws StoreException {
         return new ResponseEntity<>(storeService.softDeleteStore(id),HttpStatus.OK);
     }
 }

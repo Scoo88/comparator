@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Slf4j
@@ -35,7 +34,7 @@ public class StoreService {
 
         Optional<Store> storeCheckDb = storeRepository.findByStoreName(storeName);
         if (storeCheckDb.isPresent()){
-            logger.error("Store already exists.");
+            logger.error(Messages.STORE_ALREADY_EXISTS.getMessage());
             throw new StoreException(Messages.STORE_ALREADY_EXISTS);
         }
 
@@ -61,12 +60,13 @@ public class StoreService {
         return response;
     }
 
-    public StoreDto getStoreById(Long id){
+    public StoreDto getStoreById(Long id) throws StoreException {
         StoreDto response;
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            throw new NoSuchElementException("There is no store with id: " + id);
+            logger.error(Messages.STORE_NOT_FOUND.getMessage());
+            throw new StoreException(Messages.STORE_NOT_FOUND);
         }
 
         response = modelMapper.map(storeFromDb.get(), StoreDto.class);
@@ -74,12 +74,13 @@ public class StoreService {
         return response;
     }
 
-    public StoreDto updateStore(Long id, StoreUpdateDto storeUpdateDto){
+    public StoreDto updateStore(Long id, StoreUpdateDto storeUpdateDto) throws StoreException {
         StoreDto response;
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            throw new NoSuchElementException("There is no store with id: " + id);
+            logger.error(Messages.STORE_NOT_FOUND.getMessage());
+            throw new StoreException(Messages.STORE_NOT_FOUND);
         }
 
         Store updateStore = storeFromDb.get();
@@ -97,16 +98,16 @@ public class StoreService {
 
         response = modelMapper.map(updateStore, StoreDto.class);
 
-
         return response;
     }
 
-    public String softDeleteStore(Long id){
+    public String softDeleteStore(Long id) throws StoreException {
         String message;
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            throw new NoSuchElementException("There is no store with id: " + id);
+            logger.error(Messages.STORE_NOT_FOUND.getMessage());
+            throw new StoreException(Messages.STORE_NOT_FOUND);
         }
 
         Store deleteStore = storeFromDb.get();
