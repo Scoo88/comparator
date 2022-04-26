@@ -1,4 +1,4 @@
-package com.price.comparator.check.category;
+package com.price.comparator.check.category.entity;
 
 import com.price.comparator.check.enums.CategoryLevel;
 import com.price.comparator.check.store.entity.Store;

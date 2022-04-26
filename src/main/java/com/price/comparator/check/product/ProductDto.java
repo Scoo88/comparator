@@ -1,6 +1,6 @@
 package com.price.comparator.check.product;
 
-import com.price.comparator.check.category.Category;
+import com.price.comparator.check.category.entity.Category;
 import com.price.comparator.check.enums.Currency;
 import lombok.Data;
 

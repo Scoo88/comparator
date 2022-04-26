@@ -8,6 +8,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class StoreControllerAdvice extends ResponseEntityExceptionHandler {
 
+    //TODO
+    // - finish this
     @ExceptionHandler(value = StoreException.class)
     public ResponseEntity<Object> exception(StoreException exception) {
         String className = String.valueOf(exception.getClass());

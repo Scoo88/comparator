@@ -1,4 +1,4 @@
-package com.price.comparator.entity.links.controller;
+package com.price.comparator.check.store.controller;
 
 import com.price.comparator.check.store.dto.StoreDto;
 import com.price.comparator.check.store.dto.StoreUpdateDto;
