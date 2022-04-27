@@ -2,10 +2,12 @@ package com.price.comparator.check.category.controller;
 
 import com.price.comparator.check.category.dto.CategoryDto;
 import com.price.comparator.check.category.service.ICategoryService;
+import com.price.comparator.check.enums.CategoryLevel;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,5 +24,10 @@ public class CategoryController {
     @PostMapping("/create-category")
     public ResponseEntity<List<CategoryDto>> createStore() {
         return new ResponseEntity<>(categoryService.createCategory(), HttpStatus.OK);
+    }
+
+    @GetMapping("/enum-test")
+    public ResponseEntity<CategoryLevel> enumTest(){
+        return new ResponseEntity<>(categoryService.enumTest(), HttpStatus.OK);
     }
 }

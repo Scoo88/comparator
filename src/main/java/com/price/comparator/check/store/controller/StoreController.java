@@ -2,7 +2,7 @@ package com.price.comparator.check.store.controller;
 
 import com.price.comparator.check.store.dto.StoreDto;
 import com.price.comparator.check.store.dto.StoreUpdateDto;
-import com.price.comparator.check.store.exception.StoreException;
+import com.price.comparator.check.store.exception.PriceException;
 import com.price.comparator.check.store.service.StoreService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class StoreController {
 
     @PostMapping("/create-store")
     public ResponseEntity<StoreDto> createStore(@RequestParam String storeName, @RequestParam String link)
-            throws StoreException {
+            throws PriceException {
         return new ResponseEntity<>(storeService.createStore(storeName, link), HttpStatus.OK);
     }
 
@@ -32,18 +32,18 @@ public class StoreController {
     }
 
     @GetMapping("/get-store-id")
-    public ResponseEntity<StoreDto> getStoreById(@RequestParam Long id) throws StoreException {
+    public ResponseEntity<StoreDto> getStoreById(@RequestParam Long id) throws PriceException {
         return new ResponseEntity<>(storeService.getStoreById(id), HttpStatus.OK);
     }
 
     @PutMapping("/update-store")
     public ResponseEntity<StoreDto> updateStore(@RequestParam Long id, @RequestBody StoreUpdateDto storeUpdateDto)
-            throws StoreException {
+            throws PriceException {
         return new ResponseEntity<>(storeService.updateStore(id, storeUpdateDto),HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-store")
-    public ResponseEntity<String> deleteStore(@RequestParam Long id) throws StoreException {
+    public ResponseEntity<String> deleteStore(@RequestParam Long id) throws PriceException {
         return new ResponseEntity<>(storeService.softDeleteStore(id),HttpStatus.OK);
     }
 }

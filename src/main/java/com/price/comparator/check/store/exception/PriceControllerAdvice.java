@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class StoreControllerAdvice extends ResponseEntityExceptionHandler {
+public class PriceControllerAdvice extends ResponseEntityExceptionHandler {
 
     //TODO
     // - finish this
-    @ExceptionHandler(value = StoreException.class)
-    public ResponseEntity<Object> exception(StoreException exception) {
+    @ExceptionHandler(value = PriceException.class)
+    public ResponseEntity<Object> exception(PriceException exception) {
         String className = String.valueOf(exception.getClass());
         ResponseBase responseBase = new ResponseBase(exception.getLocalizedMessage(), exception.getHttpStatus());
         return new ResponseEntity<>(responseBase, Messages.STORE_ALREADY_EXISTS.getHttpStatus());

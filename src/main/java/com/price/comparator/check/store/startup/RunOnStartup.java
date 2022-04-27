@@ -1,7 +1,7 @@
 package com.price.comparator.check.store.startup;
 
 import com.price.comparator.check.store.entity.Store;
-import com.price.comparator.check.store.exception.StoreException;
+import com.price.comparator.check.store.exception.PriceException;
 import com.price.comparator.check.store.repository.StoreRepository;
 import com.price.comparator.check.store.service.StoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class RunOnStartup {
             if (checkDb.isEmpty()){
                 try {
                     storeService.createStore(storeName, url);
-                } catch (StoreException e) {
+                } catch (PriceException e) {
                     throw new RuntimeException(e);
                 }
             }

@@ -6,25 +6,25 @@ import org.springframework.http.HttpStatus;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class StoreException extends Exception{
+public class PriceException extends Exception{
     private final Messages messages;
     private final Throwable throwable;
     private HttpStatus httpStatus;
 
-    public StoreException(Messages messages) {
+    public PriceException(Messages messages) {
         super(messages.getMessage());
         this.messages = messages;
         this.throwable = new Throwable(messages.getMessage());
         this.httpStatus = messages.getHttpStatus();
     }
 
-    public StoreException(Messages messages, Throwable throwable) {
+    public PriceException(Messages messages, Throwable throwable) {
         super(messages.getMessage(), throwable);
         this.messages = messages;
         this.throwable = throwable;
     }
 
-    public StoreException(Messages messages, String exception) {
+    public PriceException(Messages messages, String exception) {
         super(messages.getMessage());
         this.messages = messages;
         this.throwable = new Throwable(exception);

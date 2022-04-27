@@ -4,7 +4,7 @@ import com.price.comparator.check.store.dto.StoreDto;
 import com.price.comparator.check.store.dto.StoreUpdateDto;
 import com.price.comparator.check.store.entity.Store;
 import com.price.comparator.check.store.exception.Messages;
-import com.price.comparator.check.store.exception.StoreException;
+import com.price.comparator.check.store.exception.PriceException;
 import com.price.comparator.check.store.repository.StoreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -29,13 +29,13 @@ public class StoreService {
     @Autowired
     ModelMapper modelMapper;
 
-    public StoreDto createStore(String storeName, String link) throws StoreException {
+    public StoreDto createStore(String storeName, String link) throws PriceException {
         StoreDto response;
 
         Optional<Store> storeCheckDb = storeRepository.findByStoreName(storeName);
         if (storeCheckDb.isPresent()){
             logger.error(Messages.STORE_ALREADY_EXISTS.getMessage());
-            throw new StoreException(Messages.STORE_ALREADY_EXISTS);
+            throw new PriceException(Messages.STORE_ALREADY_EXISTS);
         }
 
         Store store = new Store(storeName, link);
@@ -60,13 +60,13 @@ public class StoreService {
         return response;
     }
 
-    public StoreDto getStoreById(Long id) throws StoreException {
+    public StoreDto getStoreById(Long id) throws PriceException {
         StoreDto response;
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
             logger.error(Messages.STORE_NOT_FOUND.getMessage());
-            throw new StoreException(Messages.STORE_NOT_FOUND);
+            throw new PriceException(Messages.STORE_NOT_FOUND);
         }
 
         response = modelMapper.map(storeFromDb.get(), StoreDto.class);
@@ -74,13 +74,13 @@ public class StoreService {
         return response;
     }
 
-    public StoreDto updateStore(Long id, StoreUpdateDto storeUpdateDto) throws StoreException {
+    public StoreDto updateStore(Long id, StoreUpdateDto storeUpdateDto) throws PriceException {
         StoreDto response;
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
             logger.error(Messages.STORE_NOT_FOUND.getMessage());
-            throw new StoreException(Messages.STORE_NOT_FOUND);
+            throw new PriceException(Messages.STORE_NOT_FOUND);
         }
 
         Store updateStore = storeFromDb.get();
@@ -101,13 +101,13 @@ public class StoreService {
         return response;
     }
 
-    public String softDeleteStore(Long id) throws StoreException {
+    public String softDeleteStore(Long id) throws PriceException {
         String message;
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
             logger.error(Messages.STORE_NOT_FOUND.getMessage());
-            throw new StoreException(Messages.STORE_NOT_FOUND);
+            throw new PriceException(Messages.STORE_NOT_FOUND);
         }
 
         Store deleteStore = storeFromDb.get();
