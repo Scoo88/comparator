@@ -2,15 +2,12 @@ package com.price.comparator.check.category.controller;
 
 import com.price.comparator.check.category.dto.CategoryDto;
 import com.price.comparator.check.category.service.ICategoryService;
-import com.price.comparator.check.enums.CategoryLevel;
+import com.price.comparator.check.store.exception.PriceException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,8 +23,13 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.createCategory(), HttpStatus.OK);
     }
 
-    @GetMapping("/enum-test")
-    public ResponseEntity<CategoryLevel> enumTest(){
-        return new ResponseEntity<>(categoryService.enumTest(), HttpStatus.OK);
+    @GetMapping("/get-all-categories")
+    public ResponseEntity<List<CategoryDto>> getAllCategories(){
+        return new ResponseEntity<>(categoryService.getAll(), HttpStatus.OK);
+    }
+
+    @GetMapping("/get-category-by-id/{id}")
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long id) throws PriceException {
+        return new ResponseEntity<>(categoryService.getById(id), HttpStatus.OK);
     }
 }

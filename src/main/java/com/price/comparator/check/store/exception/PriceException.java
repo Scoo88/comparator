@@ -11,6 +11,8 @@ public class PriceException extends Exception{
     private final Throwable throwable;
     private HttpStatus httpStatus;
 
+    private long code;
+
     public PriceException(Messages messages) {
         super(messages.getMessage());
         this.messages = messages;

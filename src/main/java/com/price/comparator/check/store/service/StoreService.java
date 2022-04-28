@@ -8,8 +8,6 @@ import com.price.comparator.check.store.exception.PriceException;
 import com.price.comparator.check.store.repository.StoreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +18,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class StoreService {
-
-    private static final Logger logger = LoggerFactory.getLogger(StoreService.class);
 
     @Autowired
     StoreRepository storeRepository;
@@ -34,7 +30,7 @@ public class StoreService {
 
         Optional<Store> storeCheckDb = storeRepository.findByStoreName(storeName);
         if (storeCheckDb.isPresent()){
-            logger.error(Messages.STORE_ALREADY_EXISTS.getMessage());
+            log.error(Messages.STORE_ALREADY_EXISTS.getMessage());
             throw new PriceException(Messages.STORE_ALREADY_EXISTS);
         }
 
@@ -65,7 +61,7 @@ public class StoreService {
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            logger.error(Messages.STORE_NOT_FOUND.getMessage());
+            log.error(Messages.STORE_NOT_FOUND.getMessage());
             throw new PriceException(Messages.STORE_NOT_FOUND);
         }
 
@@ -79,7 +75,7 @@ public class StoreService {
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            logger.error(Messages.STORE_NOT_FOUND.getMessage());
+            log.error(Messages.STORE_NOT_FOUND.getMessage());
             throw new PriceException(Messages.STORE_NOT_FOUND);
         }
 
@@ -106,7 +102,7 @@ public class StoreService {
 
         Optional<Store> storeFromDb = storeRepository.findById(id);
         if (storeFromDb.isEmpty()){
-            logger.error(Messages.STORE_NOT_FOUND.getMessage());
+            log.error(Messages.STORE_NOT_FOUND.getMessage());
             throw new PriceException(Messages.STORE_NOT_FOUND);
         }
 

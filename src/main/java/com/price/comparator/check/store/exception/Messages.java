@@ -9,7 +9,9 @@ public enum Messages {
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, 1000, "Store not found."),
     STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, 1001, "Store already exists."),
 
-    UNSUPPORTED_CATEGORY_LEVEL(HttpStatus.GONE, 1002, "Unsupported category level for the store");
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, 1002, "Category does not exist."),
+
+    UNSUPPORTED_CATEGORY_LEVEL(HttpStatus.GONE, 1003, "Unsupported category level for the store.");
 
     HttpStatus httpStatus;
     long code;
