@@ -1,10 +1,13 @@
 package com.price.comparator.check.category.service;
 
 import com.price.comparator.check.category.dto.CategoryDto;
+import com.price.comparator.check.category.entity.Category;
+import com.price.comparator.check.category.repository.CategoryRepository;
 import com.price.comparator.check.enums.CategoryLevel;
 import com.price.comparator.check.store.entity.Store;
 import com.price.comparator.check.store.exception.PriceException;
 import com.price.comparator.check.store.repository.StoreRepository;
+import com.price.comparator.config.ModelMapperConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +20,16 @@ public class CategoryService implements ICategoryService{
     StoreRepository storeRepository;
 
     @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
     LinksCategoryService linksCategoryService;
 
     @Autowired
     HgspotCategoryService hgspotCategoryService;
+
+    @Autowired
+    ModelMapperConfig modelMapperConfig;
 
     @Override
     public List<CategoryDto> createCategory() {
@@ -28,20 +37,36 @@ public class CategoryService implements ICategoryService{
         List<Store> getActiveStores = storeRepository.findByActive(true);
 
         getActiveStores.forEach(activeStore -> {
-            switch (activeStore.getStoreName().toLowerCase()){
-            case "links":
-                try {
+            try {
+                switch (activeStore.getStoreName().toLowerCase()){
+                case "links":
                     response.addAll(linksCategoryService.create(activeStore));
-                } catch (PriceException e) {
-                    throw new RuntimeException(e);
+                    break;
+                case "hgspot":
+                    break;
                 }
-                break;
-            case "hgspot":
-                break;
+            } catch (PriceException e) {
+                throw new RuntimeException(e);
             }
         });
 
+        response.forEach(categoryDto -> {
+            Optional<Category> checkIfCategoryExists =
+                    categoryRepository.findByCategoryNameAndCategoryUrl(categoryDto.getCategoryName(),
+                    categoryDto.getCategoryUrl());
+            if (checkIfCategoryExists.isEmpty()){
+                Category category = new Category();
+                category.setCreatedAt(categoryDto.getCreatedAt());
+                category.setCategoryName(categoryDto.getCategoryName());
+                category.setStore(categoryDto.getStore());
+                category.setCategoryLevel(categoryDto.getCategoryLevel());
+                category.setCategoryUrl(categoryDto.getCategoryUrl());
+                category.setActive(categoryDto.getActive());
+                category.setActiveStatusChange(categoryDto.getActiveStatusChange());
 
+                categoryRepository.saveAndFlush(category);
+            }
+        });
 
         return response;
     }

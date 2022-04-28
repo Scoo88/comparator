@@ -17,4 +17,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByStoreIdAndCategoryLevel(Long id, CategoryLevel categoryLevel);
 
     List<Category> findByCategoryLevel(CategoryLevel categoryLevel);
+
+    Optional<Category> findByCategoryNameAndCategoryUrl(String categoryName, String categoryUrl);
 }
