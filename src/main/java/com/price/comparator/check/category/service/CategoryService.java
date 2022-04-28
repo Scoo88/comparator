@@ -3,6 +3,7 @@ package com.price.comparator.check.category.service;
 import com.price.comparator.check.category.dto.CategoryDto;
 import com.price.comparator.check.category.entity.Category;
 import com.price.comparator.check.category.repository.CategoryRepository;
+import com.price.comparator.check.enums.CategoryLevel;
 import com.price.comparator.check.store.entity.Store;
 import com.price.comparator.check.store.exception.Messages;
 import com.price.comparator.check.store.exception.PriceException;
@@ -97,8 +98,13 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public CategoryDto getByName() {
-        return null;
+    public List<CategoryDto> getCategories(String storeName, String categoryName, CategoryLevel categoryLevel,
+            boolean activeStatus) {
+        List<CategoryDto> response = new ArrayList<>();
+
+
+
+        return response;
     }
 
     @Override
