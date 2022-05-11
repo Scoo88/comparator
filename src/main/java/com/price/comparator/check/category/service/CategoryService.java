@@ -65,9 +65,9 @@ public class CategoryService implements ICategoryService{
                 if (categoryDto.getCategory() != null){
                     Optional<Category> parentCategory =
                             categoryRepository.findByCategoryUrl(categoryDto.getCategory().getCategoryUrl());
-                    category.setCategory(parentCategory.get());
+                    category.setParentCategory(parentCategory.get());
                 } else {
-                    category.setCategory(null);
+                    category.setParentCategory(null);
                 }
 
                 category.setCreatedAt(categoryDto.getCreatedAt());

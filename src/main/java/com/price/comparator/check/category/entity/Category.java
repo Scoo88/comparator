@@ -23,7 +23,7 @@ public class Category {
     @JoinColumn(name = "store_id")
     private Store store;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Category category;
+    private Category parentCategory;
     private String categoryUrl;
     private Boolean active;
     private LocalDateTime activeStatusChange;
