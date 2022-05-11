@@ -30,7 +30,7 @@ public class LinksCategoryService {
             List<CategoryDto> getNextCategoryLevel = getNextCategoryLevel(store, response);
             getNextCategoryLevel.forEach(categoryDto -> {
                 String checkDuplicate = categoryDto.getCategoryUrl();
-                if (response.stream().noneMatch(categoryDto1 -> categoryDto1.getCategoryUrl().equals(checkDuplicate))){
+                if (response.stream().noneMatch(categoryDto1 -> categoryDto1.getCategoryUrl().equals(checkDuplicate))) {
                     response.addAll(getNextCategoryLevel);
                 }
             });
@@ -41,8 +41,7 @@ public class LinksCategoryService {
 
     // private methods
 
-    private List<CategoryDto> getNextCategoryLevel(Store store, List<CategoryDto> higherLevelCategories)
-            throws PriceException {
+    private List<CategoryDto> getNextCategoryLevel(Store store, List<CategoryDto> higherLevelCategories) {
         List<CategoryDto> response;
         Integer nextCategoryLevel = calculateNextCategoryLevel(higherLevelCategories);
 
@@ -95,7 +94,7 @@ public class LinksCategoryService {
     private List<CategoryDto> getCategories(Store store, Integer nextCategoryLevel, CategoryDto parentCategory) {
         List<CategoryDto> response = new ArrayList<>();
         try {
-            if (parentCategory.getStore() == null){
+            if (parentCategory.getStore() == null) {
                 parentCategory.setCategoryUrl(store.getLink());
                 parentCategory.setCategoryName("");
             }
@@ -108,8 +107,9 @@ public class LinksCategoryService {
 
     @Autowired
     ModelMapper modelMapper;
-    private List<CategoryDto> mapFromJsoupToCategories(Store store, Integer categoryLevel,
-            CategoryDto parentCategory) throws IOException {
+
+    private List<CategoryDto> mapFromJsoupToCategories(Store store, Integer categoryLevel, CategoryDto parentCategory)
+            throws IOException {
         List<CategoryDto> response = new ArrayList<>();
 
         Document document = Jsoup.connect(parentCategory.getCategoryUrl()).get();
@@ -121,7 +121,7 @@ public class LinksCategoryService {
             category.setCategoryLevel(categoryLevel);
             category.setCreatedAt(LocalDateTime.now());
             category.setActive(false);
-            if (parentCategory.getCategoryName().isEmpty()){
+            if (parentCategory.getCategoryName().isEmpty()) {
                 category.setCategory(null);
             } else {
                 category.setCategory(modelMapper.map(parentCategory, Category.class));
@@ -130,7 +130,8 @@ public class LinksCategoryService {
             if (categoryLevel.equals(0)) {
                 category.setCategoryName(element.children().first().children().get(1).text());
             } else {
-                category.setCategoryName(parentCategory.getCategoryName() + " | " + element.children().first().children().get(1).text());
+                category.setCategoryName(
+                        parentCategory.getCategoryName() + " | " + element.children().first().children().get(1).text());
             }
 
             category.setCategoryUrl(store.getLink() + element.children().first().attr("href"));
