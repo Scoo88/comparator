@@ -1,6 +1,5 @@
 package com.price.comparator.check.category.entity;
 
-import com.price.comparator.check.enums.CategoryLevel;
 import com.price.comparator.check.store.entity.Store;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,7 +24,6 @@ public class Category {
     private Store store;
     @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
-    private CategoryLevel categoryLevel;
     private String categoryUrl;
     private Boolean active;
     private LocalDateTime activeStatusChange;

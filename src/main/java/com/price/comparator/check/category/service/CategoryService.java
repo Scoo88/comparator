@@ -73,7 +73,6 @@ public class CategoryService implements ICategoryService{
                 category.setCreatedAt(categoryDto.getCreatedAt());
                 category.setCategoryName(categoryDto.getCategoryName());
                 category.setStore(categoryDto.getStore());
-                category.setCategoryLevel(categoryDto.getCategoryLevel());
                 category.setCategoryUrl(categoryDto.getCategoryUrl());
                 category.setActive(categoryDto.getActive());
                 category.setActiveStatusChange(categoryDto.getActiveStatusChange());

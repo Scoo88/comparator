@@ -14,7 +14,7 @@ public enum CategoryLevel {
         this.level = level;
     }
 
-    public int getLevel() {
-        return level;
-    }
+//    public int getLevel() {
+//        return level;
+//    }
 }

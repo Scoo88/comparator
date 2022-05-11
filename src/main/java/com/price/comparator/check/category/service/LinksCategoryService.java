@@ -2,9 +2,7 @@ package com.price.comparator.check.category.service;
 
 import com.price.comparator.check.category.dto.CategoryDto;
 import com.price.comparator.check.category.entity.Category;
-import com.price.comparator.check.enums.CategoryLevel;
 import com.price.comparator.check.store.entity.Store;
-import com.price.comparator.check.store.exception.Messages;
 import com.price.comparator.check.store.exception.PriceException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,7 +13,10 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -29,8 +30,7 @@ public class LinksCategoryService {
             List<CategoryDto> getNextCategoryLevel = getNextCategoryLevel(store, response);
             getNextCategoryLevel.forEach(categoryDto -> {
                 String checkDuplicate = categoryDto.getCategoryUrl();
-                if (response.stream().filter(
-                        categoryDto1 -> categoryDto1.getCategoryUrl().equals(checkDuplicate)).count() == 0){
+                if (response.stream().noneMatch(categoryDto1 -> categoryDto1.getCategoryUrl().equals(checkDuplicate))){
                     response.addAll(getNextCategoryLevel);
                 }
             });
@@ -44,12 +44,12 @@ public class LinksCategoryService {
     private List<CategoryDto> getNextCategoryLevel(Store store, List<CategoryDto> higherLevelCategories)
             throws PriceException {
         List<CategoryDto> response;
-        CategoryLevel nextCategoryLevel = calculateNextCategoryLevel(higherLevelCategories);
+        Integer nextCategoryLevel = calculateNextCategoryLevel(higherLevelCategories);
 
         if (higherLevelCategories.isEmpty()) {
             response = getCategories(store, nextCategoryLevel, new CategoryDto());
         } else {
-            CategoryLevel previousCategoryLevel = calculatePreviousCategoryLevel(higherLevelCategories);
+            Integer previousCategoryLevel = calculatePreviousCategoryLevel(higherLevelCategories);
             List<CategoryDto> nextLevelCategories = new ArrayList<>();
             List<CategoryDto> previousLevelCategories = higherLevelCategories.stream().filter(
                     categoryDto -> categoryDto.getCategoryLevel().equals(previousCategoryLevel)).collect(
@@ -64,49 +64,35 @@ public class LinksCategoryService {
         return response;
     }
 
-    private CategoryLevel calculateNextCategoryLevel(List<CategoryDto> categoryDtoList) throws PriceException {
+    private Integer calculateNextCategoryLevel(List<CategoryDto> categoryDtoList) {
         Optional<CategoryDto> checkCategoryWithMaxLevel = categoryDtoList.stream().max(
                 Comparator.comparing(CategoryDto::getCategoryLevel));
 
         if (checkCategoryWithMaxLevel.isEmpty()) {
-            return CategoryLevel.FIRST_LEVEL;
+            return 0;
         }
 
-        CategoryLevel currentCategoryLevel = checkCategoryWithMaxLevel.get().getCategoryLevel();
+        Integer currentCategoryLevel = checkCategoryWithMaxLevel.get().getCategoryLevel();
 
-        int calculateNextCategoryLevel = currentCategoryLevel.ordinal() + 1;
-        Optional<CategoryLevel> retrieveCategoryLevel = Arrays.stream(CategoryLevel.values()).filter(
-                categoryLevel -> categoryLevel.getLevel() == calculateNextCategoryLevel).findFirst();
+        int calculateNextCategoryLevel = currentCategoryLevel + 1;
 
-        if (retrieveCategoryLevel.isEmpty()) {
-            throw new PriceException(Messages.UNSUPPORTED_CATEGORY_LEVEL);
-        }
-
-        return retrieveCategoryLevel.get();
+        return calculateNextCategoryLevel;
     }
 
-    private CategoryLevel calculatePreviousCategoryLevel(List<CategoryDto> categoryDtoList) throws PriceException {
+    private Integer calculatePreviousCategoryLevel(List<CategoryDto> categoryDtoList) {
         Optional<CategoryDto> checkCategoryWithMaxLevel = categoryDtoList.stream().max(
                 Comparator.comparing(CategoryDto::getCategoryLevel));
 
         if (checkCategoryWithMaxLevel.isEmpty()) {
-            return CategoryLevel.FIRST_LEVEL;
+            return 0;
         }
 
-        CategoryLevel currentCategoryLevel = checkCategoryWithMaxLevel.get().getCategoryLevel();
+        Integer currentCategoryLevel = checkCategoryWithMaxLevel.get().getCategoryLevel();
 
-        int calculateNextCategoryLevel = currentCategoryLevel.ordinal();
-        Optional<CategoryLevel> retrieveCategoryLevel = Arrays.stream(CategoryLevel.values()).filter(
-                categoryLevel -> categoryLevel.getLevel() == calculateNextCategoryLevel).findFirst();
-
-        if (retrieveCategoryLevel.isEmpty()) {
-            throw new PriceException(Messages.UNSUPPORTED_CATEGORY_LEVEL);
-        }
-
-        return retrieveCategoryLevel.get();
+        return currentCategoryLevel;
     }
 
-    private List<CategoryDto> getCategories(Store store, CategoryLevel nextCategoryLevel, CategoryDto parentCategory) {
+    private List<CategoryDto> getCategories(Store store, Integer nextCategoryLevel, CategoryDto parentCategory) {
         List<CategoryDto> response = new ArrayList<>();
         try {
             if (parentCategory.getStore() == null){
@@ -122,7 +108,7 @@ public class LinksCategoryService {
 
     @Autowired
     ModelMapper modelMapper;
-    private List<CategoryDto> mapFromJsoupToCategories(Store store, CategoryLevel categoryLevel,
+    private List<CategoryDto> mapFromJsoupToCategories(Store store, Integer categoryLevel,
             CategoryDto parentCategory) throws IOException {
         List<CategoryDto> response = new ArrayList<>();
 
@@ -141,7 +127,7 @@ public class LinksCategoryService {
                 category.setCategory(modelMapper.map(parentCategory, Category.class));
             }
 
-            if (categoryLevel.equals(CategoryLevel.FIRST_LEVEL)) {
+            if (categoryLevel.equals(0)) {
                 category.setCategoryName(element.children().first().children().get(1).text());
             } else {
                 category.setCategoryName(parentCategory.getCategoryName() + " | " + element.children().first().children().get(1).text());
