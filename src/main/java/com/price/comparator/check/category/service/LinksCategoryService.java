@@ -1,6 +1,7 @@
 package com.price.comparator.check.category.service;
 
 import com.price.comparator.check.category.dto.CategoryDto;
+import com.price.comparator.check.category.entity.Category;
 import com.price.comparator.check.enums.CategoryLevel;
 import com.price.comparator.check.store.entity.Store;
 import com.price.comparator.check.store.exception.Messages;
@@ -8,6 +9,8 @@ import com.price.comparator.check.store.exception.PriceException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,7 +23,7 @@ public class LinksCategoryService {
     public List<CategoryDto> create(Store store) throws PriceException {
         List<CategoryDto> response = new ArrayList<>();
 
-        int numberOfLevels = 3;
+        int numberOfLevels = 2;
 
         for (int level = 1; level <= numberOfLevels; level++) {
             List<CategoryDto> getNextCategoryLevel = getNextCategoryLevel(store, response);
@@ -44,7 +47,7 @@ public class LinksCategoryService {
         CategoryLevel nextCategoryLevel = calculateNextCategoryLevel(higherLevelCategories);
 
         if (higherLevelCategories.isEmpty()) {
-            response = getCategories(store, nextCategoryLevel, store.getLink(), "");
+            response = getCategories(store, nextCategoryLevel, new CategoryDto());
         } else {
             CategoryLevel previousCategoryLevel = calculatePreviousCategoryLevel(higherLevelCategories);
             List<CategoryDto> nextLevelCategories = new ArrayList<>();
@@ -53,9 +56,7 @@ public class LinksCategoryService {
                     Collectors.toList());
 
             previousLevelCategories.forEach(categoryDto -> {
-                String url = categoryDto.getCategoryUrl();
-                String upperCategoryName = categoryDto.getCategoryName();
-                nextLevelCategories.addAll(getCategories(store, nextCategoryLevel, url, upperCategoryName));
+                nextLevelCategories.addAll(getCategories(store, nextCategoryLevel, categoryDto));
             });
             response = nextLevelCategories;
         }
@@ -105,22 +106,27 @@ public class LinksCategoryService {
         return retrieveCategoryLevel.get();
     }
 
-    private List<CategoryDto> getCategories(Store store, CategoryLevel nextCategoryLevel, String url,
-            String upperCategoryName) {
+    private List<CategoryDto> getCategories(Store store, CategoryLevel nextCategoryLevel, CategoryDto parentCategory) {
         List<CategoryDto> response = new ArrayList<>();
         try {
-            response = mapFromJsoupToCategories(store, nextCategoryLevel, url, upperCategoryName);
+            if (parentCategory.getStore() == null){
+                parentCategory.setCategoryUrl(store.getLink());
+                parentCategory.setCategoryName("");
+            }
+            response = mapFromJsoupToCategories(store, nextCategoryLevel, parentCategory);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return response;
     }
 
-    private List<CategoryDto> mapFromJsoupToCategories(Store store, CategoryLevel categoryLevel, String url,
-            String upperCategoryName) throws IOException {
+    @Autowired
+    ModelMapper modelMapper;
+    private List<CategoryDto> mapFromJsoupToCategories(Store store, CategoryLevel categoryLevel,
+            CategoryDto parentCategory) throws IOException {
         List<CategoryDto> response = new ArrayList<>();
 
-        Document document = Jsoup.connect(url).get();
+        Document document = Jsoup.connect(parentCategory.getCategoryUrl()).get();
         Elements elementsByClass = document.getElementsByClass("active").select("ul").first().children();
 
         elementsByClass.forEach(element -> {
@@ -129,12 +135,16 @@ public class LinksCategoryService {
             category.setCategoryLevel(categoryLevel);
             category.setCreatedAt(LocalDateTime.now());
             category.setActive(false);
+            if (parentCategory.getCategoryName().isEmpty()){
+                category.setCategory(null);
+            } else {
+                category.setCategory(modelMapper.map(parentCategory, Category.class));
+            }
 
             if (categoryLevel.equals(CategoryLevel.FIRST_LEVEL)) {
                 category.setCategoryName(element.children().first().children().get(1).text());
             } else {
-                category.setCategoryName(
-                        upperCategoryName + " | " + element.children().first().children().get(1).text());
+                category.setCategoryName(parentCategory.getCategoryName() + " | " + element.children().first().children().get(1).text());
             }
 
             category.setCategoryUrl(store.getLink() + element.children().first().attr("href"));

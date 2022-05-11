@@ -23,6 +23,8 @@ public class Category {
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Category category;
     private CategoryLevel categoryLevel;
     private String categoryUrl;
     private Boolean active;
