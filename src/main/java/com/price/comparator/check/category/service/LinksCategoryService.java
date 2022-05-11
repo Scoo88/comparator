@@ -73,9 +73,7 @@ public class LinksCategoryService {
 
         Integer currentCategoryLevel = checkCategoryWithMaxLevel.get().getCategoryLevel();
 
-        int calculateNextCategoryLevel = currentCategoryLevel + 1;
-
-        return calculateNextCategoryLevel;
+        return currentCategoryLevel + 1;
     }
 
     private Integer calculatePreviousCategoryLevel(List<CategoryDto> categoryDtoList) {
