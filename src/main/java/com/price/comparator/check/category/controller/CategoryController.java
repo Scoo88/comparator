@@ -2,7 +2,6 @@ package com.price.comparator.check.category.controller;
 
 import com.price.comparator.check.category.dto.CategoryDto;
 import com.price.comparator.check.category.service.ICategoryService;
-import com.price.comparator.check.enums.CategoryLevel;
 import com.price.comparator.check.store.exception.PriceException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +33,11 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.getById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/get-categories")
-    public ResponseEntity<List<CategoryDto>> getCategories(@RequestParam String storeName,
-            @RequestParam String categoryName, @RequestParam CategoryLevel categoryLevel,
-            @RequestParam boolean activeStatus) {
-        return new ResponseEntity<>(categoryService.getCategories(storeName, categoryName, categoryLevel, activeStatus),
+    @GetMapping(value = "/get-categories")
+    public ResponseEntity<List<CategoryDto>> getCategories(@RequestParam(required = false) Long storeId,
+            @RequestParam(required = false) String categoryName, @RequestParam(required = false) Long parentCategoryId,
+            @RequestParam(required = false) Boolean activeStatus) {
+        return new ResponseEntity<>(categoryService.getCategories(storeId, categoryName, parentCategoryId, activeStatus),
                 HttpStatus.OK);
     }
 }
