@@ -22,7 +22,7 @@ public class Category {
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Category parentCategory;
     private String categoryUrl;
     private Boolean active;
