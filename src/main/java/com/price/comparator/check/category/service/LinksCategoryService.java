@@ -120,9 +120,9 @@ public class LinksCategoryService {
             category.setCreatedAt(LocalDateTime.now());
             category.setActive(false);
             if (parentCategory.getCategoryName().isEmpty()) {
-                category.setCategory(null);
+                category.setParentCategory(null);
             } else {
-                category.setCategory(modelMapper.map(parentCategory, Category.class));
+                category.setParentCategory(modelMapper.map(parentCategory, Category.class));
             }
 
             if (categoryLevel.equals(0)) {

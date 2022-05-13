@@ -31,7 +31,6 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
         if (activeStatus != null){
             predicates.add(cb.equal(category.get("active"), activeStatus));
-
         }
         if (categoryName != null){
             predicates.add(cb.like(cb.lower(category.get("categoryName")), "%" + categoryName.toLowerCase() + "%"));

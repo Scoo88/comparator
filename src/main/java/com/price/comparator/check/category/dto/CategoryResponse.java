@@ -7,13 +7,12 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class CategoryDto {
+public class CategoryResponse {
     private LocalDateTime createdAt;
     private String categoryName;
-    private Store store;
-    private Category parentCategory;
-    private Integer categoryLevel;
     private String categoryUrl;
     private Boolean active;
     private LocalDateTime activeStatusChange;
+    private Store store;
+    private Category parentCategory;
 }
