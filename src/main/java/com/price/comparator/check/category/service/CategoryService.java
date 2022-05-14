@@ -90,9 +90,12 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public List<CategoryResponse> getAll() {
+    public List<CategoryResponse> getAll() throws PriceException {
         List<CategoryResponse> response;
         List<Category> listOfCategoriesFromDb = categoryRepository.findAll();
+        if (listOfCategoriesFromDb.isEmpty()){
+            throw new PriceException(Messages.CATEGORY_NOT_FOUND);
+        }
         response = List.of(modelMapper.map(listOfCategoriesFromDb, CategoryResponse[].class));
         return response;
     }

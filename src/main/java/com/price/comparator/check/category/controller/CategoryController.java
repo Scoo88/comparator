@@ -25,7 +25,7 @@ public class CategoryController {
     }
 
     @GetMapping("/get-all-categories")
-    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
+    public ResponseEntity<List<CategoryResponse>> getAllCategories() throws PriceException {
         return new ResponseEntity<>(categoryService.getAll(), HttpStatus.OK);
     }
 

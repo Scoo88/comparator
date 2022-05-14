@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ICategoryService {
     List<CategoryResponse> createCategory();
-    List<CategoryResponse> getAll();
+    List<CategoryResponse> getAll() throws PriceException;
 
     List<CategoryResponse> getByIds(List<Long> id) throws PriceException;
 
