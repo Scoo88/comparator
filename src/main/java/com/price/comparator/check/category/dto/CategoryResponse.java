@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class CategoryResponse {
-    private LocalDateTime createdAt;
     private String categoryName;
     private String categoryUrl;
     private Boolean active;
+    private LocalDateTime createdAt;
     private LocalDateTime activeStatusChange;
     private Store store;
     private Category parentCategory;

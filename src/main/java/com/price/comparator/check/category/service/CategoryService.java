@@ -40,7 +40,7 @@ public class CategoryService implements ICategoryService{
 
     @Override
     public List<CategoryResponse> createCategory() {
-        List<CategoryResponse> response = new ArrayList<>();
+        List<CategoryResponse> response;
         List<CategoryDto> categoriesFromStores = new ArrayList<>();
         List<Store> getActiveStores = storeRepository.findByActive(true);
 
@@ -68,7 +68,7 @@ public class CategoryService implements ICategoryService{
                 if (categoryDto.getParentCategory() != null){
                     Optional<Category> parentCategory =
                             categoryRepository.findByCategoryUrl(categoryDto.getParentCategory().getCategoryUrl());
-                    category.setParentCategory(parentCategory.get());
+                    parentCategory.ifPresent(category::setParentCategory);
                 } else {
                     category.setParentCategory(null);
                 }
@@ -112,10 +112,15 @@ public class CategoryService implements ICategoryService{
 
     @Override
     public List<CategoryResponse> getCategories(Long storeId, String categoryName, Long parentCategoryId,
-            Boolean activeStatus) {
+            Boolean activeStatus) throws PriceException {
         List<CategoryResponse> response;
         List<Category> list = categoryRepository.findCategoriesByActiveAndCategoryNameAndParentCategoryAndStore(activeStatus,
                 categoryName, parentCategoryId, storeId);
+
+        if (list.isEmpty()){
+            throw new PriceException(Messages.CATEGORY_NOT_FOUND);
+        }
+
         response = List.of(modelMapper.map(list, CategoryResponse[].class));
 
         return response;
@@ -149,6 +154,30 @@ public class CategoryService implements ICategoryService{
         response = modelMapper.map(categoryToUpdate, CategoryResponse.class);
 
         return response;
+    }
+
+    public List<CategoryResponse> changeActiveStatus(List<Long> listOfIds, boolean activeStatus) throws PriceException {
+        List<CategoryResponse> response = new ArrayList<>();
+        List<Category> fetchFromDb = categoryRepository.findByIdIn(listOfIds);
+
+        if (fetchFromDb.isEmpty()){
+            throw new PriceException(Messages.CATEGORY_NOT_FOUND);
+        }
+
+        fetchFromDb.forEach(category -> {
+            category.setActive(activeStatus);
+            category.setActiveStatusChange(LocalDateTime.now());
+            categoryRepository.saveAndFlush(category);
+
+            response.add(modelMapper.map(category, CategoryResponse.class));
+        });
+
+        return response;
+    }
+
+    @Override
+    public List<CategoryResponse> changeChildrenActiveStatus(List<Long> listOfIds) {
+        return null;
     }
 
     @Override

@@ -37,7 +37,7 @@ public class CategoryController {
     @GetMapping(value = "/get-categories")
     public ResponseEntity<List<CategoryResponse>> getCategories(@RequestParam(required = false) Long storeId,
             @RequestParam(required = false) String categoryName, @RequestParam(required = false) Long parentCategoryId,
-            @RequestParam(required = false) Boolean activeStatus) {
+            @RequestParam(required = false) Boolean activeStatus) throws PriceException {
         return new ResponseEntity<>(categoryService.getCategories(storeId, categoryName, parentCategoryId, activeStatus),
                 HttpStatus.OK);
     }
@@ -47,5 +47,11 @@ public class CategoryController {
             @RequestBody CategoryUpdateDto categoryUpdateDto)
             throws PriceException {
         return new ResponseEntity<>(categoryService.updateCategory(id, categoryUpdateDto), HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/change-active-status/{categoryIds}")
+    public ResponseEntity<List<CategoryResponse>> changeActiveStatus(@PathVariable List<Long> categoryIds, boolean activeStatus)
+            throws PriceException {
+        return new ResponseEntity<>(categoryService.changeActiveStatus(categoryIds, activeStatus), HttpStatus.OK);
     }
 }

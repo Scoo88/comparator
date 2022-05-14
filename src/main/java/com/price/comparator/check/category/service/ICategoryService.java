@@ -13,9 +13,14 @@ public interface ICategoryService {
     CategoryResponse getById(Long id) throws PriceException;
 
     List<CategoryResponse> getCategories(Long storeId, String categoryName, Long parentCategoryId,
-            Boolean activeStatus);
+            Boolean activeStatus) throws PriceException;
 
     CategoryResponse updateCategory(Long id, CategoryUpdateDto categoryUpdateDto) throws PriceException;
+
+    List<CategoryResponse> changeActiveStatus(List<Long> listOfIds, boolean activeStatus) throws PriceException;
+
+    List<CategoryResponse> changeChildrenActiveStatus(List<Long> listOfIds);
+
     String deleteCategory();
 
 }
