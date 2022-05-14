@@ -29,9 +29,9 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.getAll(), HttpStatus.OK);
     }
 
-    @GetMapping("/get-category-by-id/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) throws PriceException {
-        return new ResponseEntity<>(categoryService.getById(id), HttpStatus.OK);
+    @GetMapping("/get-category-by-ids/{categoryIds}")
+    public ResponseEntity<List<CategoryResponse>> getCategoryByIds(@PathVariable List<Long> categoryIds) throws PriceException {
+        return new ResponseEntity<>(categoryService.getByIds(categoryIds), HttpStatus.OK);
     }
 
     @GetMapping(value = "/get-categories")

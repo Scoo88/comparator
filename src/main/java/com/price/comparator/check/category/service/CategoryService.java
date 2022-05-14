@@ -98,14 +98,14 @@ public class CategoryService implements ICategoryService{
     }
 
     @Override
-    public CategoryResponse getById(Long id) throws PriceException {
-        CategoryResponse response;
-        Optional<Category> categoryFromDb = categoryRepository.findById(id);
+    public List<CategoryResponse> getByIds(List<Long> id) throws PriceException {
+        List<CategoryResponse> response;
+        List<Category> categoryFromDb = categoryRepository.findByIdIn(id);
         if (categoryFromDb.isEmpty()){
             log.error(Messages.CATEGORY_NOT_FOUND.getMessage());
             throw new PriceException(Messages.CATEGORY_NOT_FOUND);
         }
-        response = modelMapper.map(categoryFromDb.get(), CategoryResponse.class);
+        response = List.of(modelMapper.map(categoryFromDb, CategoryResponse[].class));
 
         return response;
     }

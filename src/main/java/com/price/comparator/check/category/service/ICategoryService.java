@@ -10,7 +10,7 @@ public interface ICategoryService {
     List<CategoryResponse> createCategory();
     List<CategoryResponse> getAll();
 
-    CategoryResponse getById(Long id) throws PriceException;
+    List<CategoryResponse> getByIds(List<Long> id) throws PriceException;
 
     List<CategoryResponse> getCategories(Long storeId, String categoryName, Long parentCategoryId,
             Boolean activeStatus) throws PriceException;
