@@ -15,7 +15,7 @@ spring:
         enabled: ALWAYS
   # Database
   datasource:
-    url: jdbc:postgresql://localhost:5432/price-compare
+    url: jdbc:postgresql://localhost:5432/app
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver

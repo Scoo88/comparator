@@ -35,3 +35,9 @@ out/
 
 ### VS Code ###
 .vscode/
+/docker/.idea/.gitignore
+/docker/.idea/misc.xml
+/docker/.idea/modules.xml
+/docker/.idea/postgrespgadmin.iml
+/docker/.idea/vcs.xml
+/docker/.idea/workspace.xml
